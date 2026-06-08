@@ -417,7 +417,7 @@ export default function Dashboard() {
           )}
 
           {viewTab === 'Investment Analysis' && (
-            <div className="row g-3">
+            <div className="row g-2 g-md-3 mb-5">
               {[
                 { label: 'Land investment', val: 'PKR 9,000,000', cls: '' },
                 { label: 'Annual farm income', val: fmtPKR(calc.net), cls: calc.net >= 0 ? 'kpi-pos' : 'kpi-neg' },
@@ -426,10 +426,10 @@ export default function Dashboard() {
                 { label: 'Cash ROI (annual)', val: calc.simple_roi.toFixed(1) + '%', cls: calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn' },
                 { label: 'Estimated IRR (10yr)', val: calc.irr_approx.toFixed(1) + '%', cls: calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn' },
               ].map((i, idx) => (
-                <div className="col-md-4 col-lg-4" key={idx}>
-                  <div className="card card-custom h-100 p-4 bg-light border-0">
-                    <p className="text-muted small mb-2">{i.label}</p>
-                    <h4 className={`mb-0 fw-bold ${i.cls}`}>{i.val}</h4>
+                <div className="col-6 col-md-4" key={idx}>
+                  <div className="card card-custom h-100 p-3 p-md-4 bg-light border-0 d-flex justify-content-center">
+                    <p className="text-muted mb-1 mb-md-2" style={{ fontSize: '12px' }}>{i.label}</p>
+                    <h5 className={`mb-0 fw-bold ${i.cls}`} style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>{i.val}</h5>
                   </div>
                 </div>
               ))}
