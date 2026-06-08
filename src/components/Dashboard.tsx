@@ -19,7 +19,9 @@ import { Info, Target, TrendingUp, DollarSign, Sprout, BarChart3, PieChart } fro
 
 const tabsConfig = [
   { id: 'Annual Summary', icon: BarChart3 },
-  { id: 'Per-crop Breakdown', icon: Sprout },
+  { id: 'Rice', icon: Sprout },
+  { id: 'Sesame', icon: Sprout },
+  { id: 'Wheat', icon: Sprout },
   { id: 'Investment Analysis', icon: PieChart }
 ];
 
@@ -383,32 +385,36 @@ export default function Dashboard() {
             </div>
           )}
 
-          {viewTab === 'Per-crop Breakdown' && (
-            <div className="row g-3 mb-5">
-              {[
-                { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price },
-                { name: 'Sesame', color: '#EF9F27', rev: calc.ses_rev, cost: currentParams.ses.cost, net: calc.ses_rev - currentParams.ses.cost, margin: calc.ses_margin, yield: currentParams.ses.yield + ' kg', price: currentParams.ses.price },
-                { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price }
-              ].map(cr => (
-                <div className="col-md-4" key={cr.name}>
-                  <div className="card card-custom h-100">
-                    <div className="card-body">
-                      <h5 className="d-flex align-items-center mb-4">
-                        <span className="me-2 rounded-circle" style={{width: 12, height: 12, background: cr.color}}></span>
-                        {cr.name}
-                      </h5>
-                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Net</span><span className={`fw-bold ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between py-2 small"><span className="text-muted">Margin</span><span className={`fw-bold ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
+          {['Rice', 'Sesame', 'Wheat'].includes(viewTab) && (() => {
+            const crData = [
+              { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price, season: currentParams.rice.season },
+              { name: 'Sesame', color: '#EF9F27', rev: calc.ses_rev, cost: currentParams.ses.cost, net: calc.ses_rev - currentParams.ses.cost, margin: calc.ses_margin, yield: currentParams.ses.yield + ' kg', price: currentParams.ses.price, season: currentParams.ses.season },
+              { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price, season: currentParams.wheat.season }
+            ];
+            const cr = crData.find(c => c.name === viewTab);
+            if (!cr) return null;
+            return (
+              <div className="row justify-content-center mb-5">
+                <div className="col-md-8 col-lg-6">
+                  <div className="card card-custom h-100 border-0 shadow-sm" style={{ borderTop: `6px solid ${cr.color}` }}>
+                    <div className="card-body p-4 p-md-5">
+                      <h4 className="d-flex align-items-center fw-bold mb-1">
+                        <span className="me-3 rounded-circle shadow-sm" style={{width: 16, height: 16, background: cr.color}}></span>
+                        {cr.name} Analysis
+                      </h4>
+                      <p className="text-muted mb-4 ms-4 ps-2">{cr.season}</p>
+                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Net Profit</span><span className={`fw-bold ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between py-3"><span className="text-muted">Profit Margin</span><span className={`fw-bold ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            );
+          })()}
 
           {viewTab === 'Investment Analysis' && (
             <div className="row g-3">
