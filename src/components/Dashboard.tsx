@@ -305,43 +305,22 @@ export default function Dashboard() {
         >
           {viewTab === 'Annual Summary' && (
             <div>
-              <div className="row g-3 mb-5">
-                <div className="col-md-4 col-lg-2">
-                  <div className="card card-custom h-100 p-4">
-                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Gross revenue</p>
-                    <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_rev)}</h4>
+              <div className="row g-2 g-md-3 mb-5">
+                {[
+                  { label: 'Gross revenue', val: fmtPKR(calc.total_rev), cls: '' },
+                  { label: 'Total costs', val: fmtPKR(calc.total_cost), cls: '' },
+                  { label: 'Net income', val: fmtPKR(calc.net), cls: calc.net >= 0 ? 'kpi-pos' : 'kpi-neg' },
+                  { label: 'Cash ROI', val: calc.simple_roi.toFixed(1) + '%', cls: calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn' },
+                  { label: 'Payback', val: calc.payback_yrs > 99 ? '∞' : calc.payback_yrs.toFixed(1) + ' yrs', cls: calc.payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn' },
+                  { label: 'Est. IRR (10y)', val: calc.irr_approx.toFixed(1) + '%', cls: calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn' },
+                ].map((kpi, i) => (
+                  <div className="col-6 col-lg-2" key={i}>
+                    <div className="card card-custom h-100 p-3 p-md-4 d-flex justify-content-center">
+                      <p className="text-muted mb-1 mb-md-2" style={{ fontSize: '12px' }}>{kpi.label}</p>
+                      <h5 className={`mb-0 fw-bold ${kpi.cls}`} style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}>{kpi.val}</h5>
+                    </div>
                   </div>
-                </div>
-                <div className="col-md-4 col-lg-2">
-                  <div className="card card-custom h-100 p-4">
-                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Total costs</p>
-                    <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_cost)}</h4>
-                  </div>
-                </div>
-                <div className="col-md-4 col-lg-2">
-                  <div className="card card-custom h-100 p-4">
-                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Net income</p>
-                    <h4 className={`mb-0 fw-bold ${calc.net >= 0 ? 'kpi-pos' : 'kpi-neg'}`}>{fmtPKR(calc.net)}</h4>
-                  </div>
-                </div>
-                <div className="col-md-4 col-lg-2">
-                  <div className="card card-custom h-100 p-4">
-                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Cash ROI</p>
-                    <h4 className={`mb-0 fw-bold ${calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.simple_roi.toFixed(1)}%</h4>
-                  </div>
-                </div>
-                <div className="col-md-4 col-lg-2">
-                  <div className="card card-custom h-100 p-4">
-                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Payback</p>
-                    <h4 className={`mb-0 fw-bold ${calc.payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.payback_yrs > 99 ? '∞' : calc.payback_yrs.toFixed(1) + ' yrs'}</h4>
-                  </div>
-                </div>
-                <div className="col-md-4 col-lg-2">
-                  <div className="card card-custom h-100 p-4">
-                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Est. IRR (10y)</p>
-                    <h4 className={`mb-0 fw-bold ${calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.irr_approx.toFixed(1)}%</h4>
-                  </div>
-                </div>
+                ))}
               </div>
 
               <div className="row g-4 mb-5">
