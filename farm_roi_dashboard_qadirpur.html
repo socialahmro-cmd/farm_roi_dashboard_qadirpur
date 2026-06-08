@@ -1,0 +1,340 @@
+
+<h2 class="sr-only">Agricultural ROI dashboard for 1-acre farm at Qadirpur Rawan, Multan — three crops per year: Rice, Sesame, and Wheat</h2>
+
+<style>
+  .dash { font-family: 'Georgia', serif; padding: 1rem 0; }
+  .section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 10px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+  .kpi-label { font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 4px; }
+  .kpi-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+  .kpi-sub { font-size: 11px; color: var(--color-text-secondary); margin: 2px 0 0; }
+  .kpi-pos { color: #3B6D11; }
+  .kpi-neg { color: #A32D2D; }
+  .kpi-warn { color: #854F0B; }
+  .crop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .crop-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+  .crop-name { font-size: 13px; font-weight: 500; margin: 0 0 10px; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+  .crop-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .crop-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .crop-row:last-child { border-bottom: none; }
+  .crop-row span:first-child { color: var(--color-text-secondary); }
+  .crop-row span:last-child { font-weight: 500; color: var(--color-text-primary); }
+  .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .slider-block { }
+  .slider-label { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px; display: flex; justify-content: space-between; }
+  .slider-label span { font-weight: 500; color: var(--color-text-primary); }
+  input[type=range] { width: 100%; }
+  .scenario-tabs { display: flex; gap: 6px; margin-bottom: 1rem; }
+  .tab-btn { font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; }
+  .tab-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; border-color: var(--color-border-primary); }
+  .chart-wrap { position: relative; width: 100%; height: 240px; margin-bottom: 1.5rem; }
+  .waterfall-wrap { position: relative; width: 100%; height: 300px; margin-bottom: 1.5rem; }
+  .break-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .break-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .break-label { font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 3px; }
+  .break-val { font-size: 16px; font-weight: 500; margin: 0; }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.5rem 0; }
+  .note { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1rem; line-height: 1.6; }
+  @media (max-width: 500px) {
+    .crop-grid { grid-template-columns: 1fr; }
+    .slider-grid { grid-template-columns: 1fr; }
+    .break-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="dash">
+
+  <div style="margin-bottom: 1.5rem;">
+    <div style="font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px;">Farm ROI Model — Qadirpur Rawan, Multan</div>
+    <div style="font-size: 13px; color: var(--color-text-secondary);">1 acre · Land cost: PKR 9,000,000 · 3 crops/year (Rice → Sesame → Wheat)</div>
+  </div>
+
+  <div class="section-title">Scenario selector</div>
+  <div class="scenario-tabs" id="scenarioTabs">
+    <button class="tab-btn active" onclick="setScenario('base',this)">Base case</button>
+    <button class="tab-btn" onclick="setScenario('optimistic',this)">Optimistic</button>
+    <button class="tab-btn" onclick="setScenario('pessimistic',this)">Pessimistic</button>
+    <button class="tab-btn" onclick="setScenario('custom',this)">Custom</button>
+  </div>
+
+  <div id="customControls" style="display:none; background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary);">
+    <div class="section-title" style="margin-bottom: 14px;">Adjust assumptions</div>
+    <div class="slider-grid">
+      <div class="slider-block">
+        <div class="slider-label">Rice yield (maund/acre) <span id="lbl_rice_yield">35</span></div>
+        <input type="range" min="20" max="55" step="1" value="35" id="sl_rice_yield" oninput="updateSlider('rice_yield',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Rice price (PKR/maund) <span id="lbl_rice_price">4200</span></div>
+        <input type="range" min="2500" max="6500" step="100" value="4200" id="sl_rice_price" oninput="updateSlider('rice_price',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Sesame yield (kg/acre) <span id="lbl_ses_yield">300</span></div>
+        <input type="range" min="150" max="550" step="10" value="300" id="sl_ses_yield" oninput="updateSlider('ses_yield',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Sesame price (PKR/kg) <span id="lbl_ses_price">1100</span></div>
+        <input type="range" min="700" max="1800" step="50" value="1100" id="sl_ses_price" oninput="updateSlider('ses_price',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Wheat yield (maund/acre) <span id="lbl_wheat_yield">30</span></div>
+        <input type="range" min="18" max="50" step="1" value="30" id="sl_wheat_yield" oninput="updateSlider('wheat_yield',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Wheat price (PKR/maund) <span id="lbl_wheat_price">3200</span></div>
+        <input type="range" min="2000" max="5000" step="100" value="3200" id="sl_wheat_price" oninput="updateSlider('wheat_price',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Annual cost inflation % <span id="lbl_inflation">8</span>%</div>
+        <input type="range" min="0" max="25" step="1" value="8" id="sl_inflation" oninput="updateSlider('inflation',this.value)">
+      </div>
+      <div class="slider-block">
+        <div class="slider-label">Annual price appreciation % <span id="lbl_land_app">6</span>%</div>
+        <input type="range" min="0" max="20" step="1" value="6" id="sl_land_app" oninput="updateSlider('land_app',this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Annual summary</div>
+  <div class="kpi-grid" id="kpiRow"></div>
+
+  <div class="section-title">Per-crop breakdown</div>
+  <div class="crop-grid" id="cropCards"></div>
+
+  <hr class="divider">
+
+  <div class="section-title">Annual net income — 10-year projection</div>
+  <div class="chart-wrap"><canvas id="incomeChart" role="img" aria-label="Line chart showing annual net farm income over 10 years across scenarios">Annual net income projection over 10 years.</canvas></div>
+
+  <div class="section-title">Cash flow waterfall — year 1</div>
+  <div class="waterfall-wrap"><canvas id="waterfallChart" role="img" aria-label="Waterfall chart showing revenue and cost components for year 1">Year 1 cash flow components from revenue to net income.</canvas></div>
+
+  <hr class="divider">
+
+  <div class="section-title">Investment analysis</div>
+  <div class="break-grid" id="investRow"></div>
+
+  <p class="note">Assumptions: 1 acre Qadirpur Rawan, Multan. Rice (Kharif, Jun–Oct), Sesame (Kharif/Rabi bridge, Jul–Oct), Wheat (Rabi, Nov–Apr). Land investment: PKR 9,000,000. Cost estimates include seeds, fertilizer, pesticides, irrigation, labour, and harvesting. Land appreciation compound annual growth. ROI excludes land appreciation; Total return includes it.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const LAND = 9000000;
+
+const SCENARIOS = {
+  base: {
+    rice:  { yield: 35, price: 4200, cost: 55000, season: 'Kharif (Jun–Oct)' },
+    ses:   { yield: 300, price: 1100, cost: 30000, season: 'Kharif bridge (Jul–Oct)' },
+    wheat: { yield: 30, price: 3200, cost: 42000, season: 'Rabi (Nov–Apr)' },
+    inflation: 8, land_app: 6
+  },
+  optimistic: {
+    rice:  { yield: 48, price: 5200, cost: 55000, season: 'Kharif (Jun–Oct)' },
+    ses:   { yield: 450, price: 1450, cost: 30000, season: 'Kharif bridge (Jul–Oct)' },
+    wheat: { yield: 42, price: 4000, cost: 42000, season: 'Rabi (Nov–Apr)' },
+    inflation: 5, land_app: 10
+  },
+  pessimistic: {
+    rice:  { yield: 24, price: 3200, cost: 60000, season: 'Kharif (Jun–Oct)' },
+    ses:   { yield: 180, price: 800, cost: 32000, season: 'Kharif bridge (Jul–Oct)' },
+    wheat: { yield: 20, price: 2400, cost: 46000, season: 'Rabi (Nov–Apr)' },
+    inflation: 12, land_app: 3
+  },
+  custom: {
+    rice:  { yield: 35, price: 4200, cost: 55000, season: 'Kharif (Jun–Oct)' },
+    ses:   { yield: 300, price: 1100, cost: 30000, season: 'Kharif bridge (Jul–Oct)' },
+    wheat: { yield: 30, price: 3200, cost: 42000, season: 'Rabi (Nov–Apr)' },
+    inflation: 8, land_app: 6
+  }
+};
+
+let currentScenario = 'base';
+
+function calc(s) {
+  const rice_rev = s.rice.yield * s.rice.price;
+  const ses_rev  = s.ses.yield  * s.ses.price;
+  const wht_rev  = s.wheat.yield * s.wheat.price;
+  const total_rev = rice_rev + ses_rev + wht_rev;
+  const total_cost = s.rice.cost + s.ses.cost + s.wheat.cost;
+  const net = total_rev - total_cost;
+  return { rice_rev, ses_rev, wht_rev, total_rev, total_cost, net,
+    rice_margin: ((rice_rev - s.rice.cost)/rice_rev*100),
+    ses_margin:  ((ses_rev  - s.ses.cost) /ses_rev *100),
+    wht_margin:  ((wht_rev  - s.wheat.cost)/wht_rev*100)
+  };
+}
+
+function fmt(n, dec=0) {
+  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return Math.round(n).toLocaleString();
+  return n.toFixed(dec);
+}
+
+function fmtPKR(n) { return 'PKR ' + fmt(n); }
+
+let incChart = null, wtChart = null;
+
+function renderAll() {
+  const s = SCENARIOS[currentScenario];
+  const c = calc(s);
+
+  const simple_roi = (c.net / LAND * 100);
+  const payback_yrs = LAND / c.net;
+  const land_val_10 = LAND * Math.pow(1 + s.land_app/100, 10);
+  const total_farm_income_10 = (() => {
+    let sum = 0;
+    for (let y = 1; y <= 10; y++) {
+      const factor = Math.pow(1 + (s.land_app/100 - s.inflation/100)/2, y-1);
+      sum += c.net * factor;
+    }
+    return sum;
+  })();
+  const total_return_10 = total_farm_income_10 + land_val_10 - LAND;
+  const irr_approx = (Math.pow((total_farm_income_10 + land_val_10) / LAND, 1/10) - 1) * 100;
+
+  const kpiData = [
+    { label: 'Gross revenue', val: fmtPKR(c.total_rev), sub: 'per year', cls: '' },
+    { label: 'Total costs', val: fmtPKR(c.total_cost), sub: 'per year', cls: '' },
+    { label: 'Net farm income', val: fmtPKR(c.net), sub: 'per year', cls: c.net >= 0 ? 'kpi-pos' : 'kpi-neg' },
+    { label: 'Cash-on-cash ROI', val: simple_roi.toFixed(1) + '%', sub: 'annual (excl. land apprec.)', cls: simple_roi >= 5 ? 'kpi-pos' : simple_roi >= 0 ? 'kpi-warn' : 'kpi-neg' },
+    { label: 'Payback period', val: payback_yrs > 99 ? '∞' : payback_yrs.toFixed(1) + ' yrs', sub: 'farm income only', cls: payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn' },
+    { label: 'Est. IRR (10yr)', val: irr_approx.toFixed(1) + '%', sub: 'incl. land appreciation', cls: irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn' },
+  ];
+
+  const kpiEl = document.getElementById('kpiRow');
+  kpiEl.innerHTML = kpiData.map(k => `
+    <div class="kpi">
+      <p class="kpi-label">${k.label}</p>
+      <p class="kpi-val ${k.cls}">${k.val}</p>
+      <p class="kpi-sub">${k.sub}</p>
+    </div>`).join('');
+
+  const crops = [
+    { name: 'Rice', color: '#1D9E75', rev: c.rice_rev, cost: s.rice.cost, net: c.rice_rev - s.rice.cost, margin: c.rice_margin, season: s.rice.season, yield: s.rice.yield + ' maund', price: 'PKR ' + s.rice.price + '/maund' },
+    { name: 'Sesame', color: '#EF9F27', rev: c.ses_rev, cost: s.ses.cost, net: c.ses_rev - s.ses.cost, margin: c.ses_margin, season: s.ses.season, yield: s.ses.yield + ' kg', price: 'PKR ' + s.ses.price + '/kg' },
+    { name: 'Wheat', color: '#378ADD', rev: c.wht_rev, cost: s.wheat.cost, net: c.wht_rev - s.wheat.cost, margin: c.wht_margin, season: s.wheat.season, yield: s.wheat.yield + ' maund', price: 'PKR ' + s.wheat.price + '/maund' },
+  ];
+
+  document.getElementById('cropCards').innerHTML = crops.map(cr => `
+    <div class="crop-card">
+      <div class="crop-name"><span class="crop-dot" style="background:${cr.color}"></span>${cr.name}</div>
+      <div class="crop-row"><span>Season</span><span style="font-size:10px">${cr.season}</span></div>
+      <div class="crop-row"><span>Yield</span><span>${cr.yield}</span></div>
+      <div class="crop-row"><span>Price</span><span>${cr.price}</span></div>
+      <div class="crop-row"><span>Revenue</span><span>PKR ${Math.round(cr.rev).toLocaleString()}</span></div>
+      <div class="crop-row"><span>Cost</span><span>PKR ${Math.round(cr.cost).toLocaleString()}</span></div>
+      <div class="crop-row"><span>Net</span><span style="color:${cr.net>=0?'#3B6D11':'#A32D2D'}">PKR ${Math.round(cr.net).toLocaleString()}</span></div>
+      <div class="crop-row"><span>Margin</span><span style="color:${cr.margin>=30?'#3B6D11':cr.margin>=10?'#854F0B':'#A32D2D'}">${cr.margin.toFixed(1)}%</span></div>
+    </div>`).join('');
+
+  const years = Array.from({length:10},(_,i)=>2025+i);
+  const buildIncome = (sc) => {
+    const base_net = calc(sc).net;
+    return years.map((_,i) => Math.round(base_net * Math.pow(1 + (sc.land_app/100 - sc.inflation/100)/2, i)));
+  };
+
+  const baseInc  = buildIncome(SCENARIOS.base);
+  const optInc   = buildIncome(SCENARIOS.optimistic);
+  const pesInc   = buildIncome(SCENARIOS.pessimistic);
+  const curInc   = buildIncome(s);
+
+  if (incChart) incChart.destroy();
+  incChart = new Chart(document.getElementById('incomeChart'), {
+    type: 'line',
+    data: {
+      labels: years.map(String),
+      datasets: [
+        { label: 'Optimistic', data: optInc, borderColor: '#1D9E75', backgroundColor: 'transparent', borderDash: [4,3], borderWidth: 1.5, pointRadius: 2 },
+        { label: currentScenario === 'base' ? 'Base case' : currentScenario.charAt(0).toUpperCase()+currentScenario.slice(1), data: curInc, borderColor: '#378ADD', backgroundColor: 'rgba(55,138,221,0.07)', fill: true, borderWidth: 2.5, pointRadius: 3 },
+        { label: 'Pessimistic', data: pesInc, borderColor: '#E24B4A', backgroundColor: 'transparent', borderDash: [4,3], borderWidth: 1.5, pointRadius: 2 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': PKR ' + ctx.raw.toLocaleString() } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 11 } }, grid: { color: 'rgba(120,120,120,0.1)' } },
+        y: { ticks: { font: { size: 11 }, callback: v => 'PKR ' + (v/1000).toFixed(0) + 'k' }, grid: { color: 'rgba(120,120,120,0.1)' } }
+      }
+    }
+  });
+
+  const wfLabels = ['Rice revenue','Sesame revenue','Wheat revenue','Rice cost','Sesame cost','Wheat cost','Net income'];
+  const wfColors = ['#1D9E75','#EF9F27','#378ADD','#E24B4A','#E24B4A','#E24B4A', c.net >= 0 ? '#1D9E75' : '#E24B4A'];
+  const wfData   = [c.rice_rev, c.ses_rev, c.wht_rev, -s.rice.cost, -s.ses.cost, -s.wheat.cost, c.net];
+
+  if (wtChart) wtChart.destroy();
+  wtChart = new Chart(document.getElementById('waterfallChart'), {
+    type: 'bar',
+    data: {
+      labels: wfLabels,
+      datasets: [{ data: wfData, backgroundColor: wfColors, borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.raw;
+              return (v < 0 ? 'Cost: PKR ' + Math.abs(v).toLocaleString() : 'PKR ' + v.toLocaleString());
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { font: { size: 11 }, maxRotation: 25 }, grid: { display: false } },
+        y: { ticks: { font: { size: 11 }, callback: v => (v < 0 ? '-' : '') + 'PKR ' + (Math.abs(v)/1000).toFixed(0) + 'k' }, grid: { color: 'rgba(120,120,120,0.1)' } }
+      }
+    }
+  });
+
+  const invest = [
+    { label: 'Land investment', val: 'PKR 9,000,000', cls: '' },
+    { label: 'Annual farm income', val: fmtPKR(c.net), cls: c.net >= 0 ? 'kpi-pos' : 'kpi-neg' },
+    { label: 'Land value (10yr)', val: fmtPKR(land_val_10), cls: 'kpi-pos' },
+    { label: 'Total 10yr return', val: fmtPKR(total_return_10), cls: total_return_10 >= 0 ? 'kpi-pos' : 'kpi-neg' },
+    { label: 'Cash ROI (annual)', val: simple_roi.toFixed(1) + '%', cls: simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn' },
+    { label: 'Estimated IRR (10yr)', val: irr_approx.toFixed(1) + '%', cls: irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn' },
+    { label: 'Land payback', val: payback_yrs.toFixed(1) + ' years', cls: payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn' },
+    { label: 'Land apprec. rate', val: s.land_app + '% / yr', cls: '' },
+  ];
+
+  document.getElementById('investRow').innerHTML = invest.map(i => `
+    <div class="break-card">
+      <p class="break-label">${i.label}</p>
+      <p class="break-val ${i.cls}">${i.val}</p>
+    </div>`).join('');
+}
+
+function setScenario(name, btn) {
+  currentScenario = name;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customControls').style.display = name === 'custom' ? 'block' : 'none';
+  renderAll();
+}
+
+function updateSlider(key, val) {
+  const s = SCENARIOS.custom;
+  const labelMap = { rice_yield: ['lbl_rice_yield', null, null], rice_price: ['lbl_rice_price', null, null], ses_yield: ['lbl_ses_yield', null, null], ses_price: ['lbl_ses_price', null, null], wheat_yield: ['lbl_wheat_yield', null, null], wheat_price: ['lbl_wheat_price', null, null], inflation: ['lbl_inflation', null, null], land_app: ['lbl_land_app', null, null] };
+  document.getElementById(labelMap[key][0]).textContent = val;
+  const v = parseFloat(val);
+  if (key === 'rice_yield')  s.rice.yield   = v;
+  if (key === 'rice_price')  s.rice.price   = v;
+  if (key === 'ses_yield')   s.ses.yield    = v;
+  if (key === 'ses_price')   s.ses.price    = v;
+  if (key === 'wheat_yield') s.wheat.yield  = v;
+  if (key === 'wheat_price') s.wheat.price  = v;
+  if (key === 'inflation')   s.inflation    = v;
+  if (key === 'land_app')    s.land_app     = v;
+  renderAll();
+}
+
+renderAll();
+</script>
