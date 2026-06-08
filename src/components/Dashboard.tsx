@@ -70,6 +70,7 @@ const fmtPKR = (n: number) => `PKR ${fmt(n)}`;
 
 export default function Dashboard() {
   const [activeScenario, setActiveScenario] = useState<'base' | 'optimistic' | 'pessimistic' | 'custom'>('base');
+  const [viewTab, setViewTab] = useState<string>('Annual Summary');
   const [customParams, setCustomParams] = useState<Scenario>({ ...defaultScenarios.base });
 
   const currentParams = activeScenario === 'custom' ? customParams : defaultScenarios[activeScenario];
@@ -259,129 +260,161 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      <h6 className="text-uppercase text-muted fw-bold mt-5 mb-3" style={{ fontSize: '12px', letterSpacing: '0.05em' }}>Annual Summary</h6>
-      <div className="row g-3 mb-5">
-        <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-4">
-            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Gross revenue</p>
-            <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_rev)}</h4>
-          </div>
-        </div>
-        <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-4">
-            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Total costs</p>
-            <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_cost)}</h4>
-          </div>
-        </div>
-        <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-4">
-            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Net income</p>
-            <h4 className={`mb-0 fw-bold ${calc.net >= 0 ? 'kpi-pos' : 'kpi-neg'}`}>{fmtPKR(calc.net)}</h4>
-          </div>
-        </div>
-        <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-4">
-            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Cash ROI</p>
-            <h4 className={`mb-0 fw-bold ${calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.simple_roi.toFixed(1)}%</h4>
-          </div>
-        </div>
-        <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-4">
-            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Payback</p>
-            <h4 className={`mb-0 fw-bold ${calc.payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.payback_yrs > 99 ? '∞' : calc.payback_yrs.toFixed(1) + ' yrs'}</h4>
-          </div>
-        </div>
-        <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-4">
-            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Est. IRR (10y)</p>
-            <h4 className={`mb-0 fw-bold ${calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.irr_approx.toFixed(1)}%</h4>
-          </div>
-        </div>
+      <div className="mb-4 mt-5 border-bottom">
+        <ul className="nav nav-tabs border-0" style={{ gap: '10px' }}>
+          {['Annual Summary', 'Per-crop Breakdown', 'Investment Analysis'].map((tab) => (
+            <li className="nav-item" key={tab}>
+              <button
+                className={`nav-link border-0 ${viewTab === tab ? 'active text-success fw-bold border-bottom border-success border-3' : 'text-muted'}`}
+                style={{ backgroundColor: 'transparent', borderBottom: viewTab === tab ? '3px solid #1D9E75 !important' : 'none', borderRadius: 0, paddingBottom: '12px' }}
+                onClick={() => setViewTab(tab)}
+              >
+                {tab}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <h6 className="text-uppercase text-muted fw-bold mt-5 mb-3" style={{ fontSize: '12px', letterSpacing: '0.05em' }}>Per-crop Breakdown</h6>
-      <div className="row g-3 mb-5">
-        {[
-          { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price },
-          { name: 'Sesame', color: '#EF9F27', rev: calc.ses_rev, cost: currentParams.ses.cost, net: calc.ses_rev - currentParams.ses.cost, margin: calc.ses_margin, yield: currentParams.ses.yield + ' kg', price: currentParams.ses.price },
-          { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price }
-        ].map(cr => (
-          <div className="col-md-4" key={cr.name}>
-            <div className="card card-custom h-100">
-              <div className="card-body">
-                <h5 className="d-flex align-items-center mb-4">
-                  <span className="me-2 rounded-circle" style={{width: 12, height: 12, background: cr.color}}></span>
-                  {cr.name}
-                </h5>
-                <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
-                <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
-                <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
-                <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
-                <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Net</span><span className={`fw-bold ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
-                <div className="d-flex justify-content-between py-2 small"><span className="text-muted">Margin</span><span className={`fw-bold ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={viewTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className="pt-3"
+        >
+          {viewTab === 'Annual Summary' && (
+            <div>
+              <div className="row g-3 mb-5">
+                <div className="col-md-4 col-lg-2">
+                  <div className="card card-custom h-100 p-4">
+                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Gross revenue</p>
+                    <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_rev)}</h4>
+                  </div>
+                </div>
+                <div className="col-md-4 col-lg-2">
+                  <div className="card card-custom h-100 p-4">
+                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Total costs</p>
+                    <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_cost)}</h4>
+                  </div>
+                </div>
+                <div className="col-md-4 col-lg-2">
+                  <div className="card card-custom h-100 p-4">
+                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Net income</p>
+                    <h4 className={`mb-0 fw-bold ${calc.net >= 0 ? 'kpi-pos' : 'kpi-neg'}`}>{fmtPKR(calc.net)}</h4>
+                  </div>
+                </div>
+                <div className="col-md-4 col-lg-2">
+                  <div className="card card-custom h-100 p-4">
+                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Cash ROI</p>
+                    <h4 className={`mb-0 fw-bold ${calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.simple_roi.toFixed(1)}%</h4>
+                  </div>
+                </div>
+                <div className="col-md-4 col-lg-2">
+                  <div className="card card-custom h-100 p-4">
+                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Payback</p>
+                    <h4 className={`mb-0 fw-bold ${calc.payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.payback_yrs > 99 ? '∞' : calc.payback_yrs.toFixed(1) + ' yrs'}</h4>
+                  </div>
+                </div>
+                <div className="col-md-4 col-lg-2">
+                  <div className="card card-custom h-100 p-4">
+                    <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Est. IRR (10y)</p>
+                    <h4 className={`mb-0 fw-bold ${calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.irr_approx.toFixed(1)}%</h4>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      <div className="row g-4 mb-5">
-        <div className="col-lg-7">
-          <div className="card card-custom h-100">
-            <div className="card-body">
-              <h5 className="card-title fw-bold mb-4">Annual Net Income (10-Year Projection)</h5>
-              <div style={{ height: '300px' }}>
-                <Line 
-                  data={lineChartData} 
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: { y: { beginAtZero: true } }
-                  }} 
-                />
+              <div className="row g-4 mb-5">
+                <div className="col-lg-7">
+                  <div className="card card-custom h-100">
+                    <div className="card-body">
+                      <h5 className="card-title fw-bold mb-4">Annual Net Income (10-Year Projection)</h5>
+                      <div style={{ height: '300px' }}>
+                        <Line 
+                          data={lineChartData} 
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } },
+                            scales: { y: { beginAtZero: true } }
+                          }} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-lg-5">
+                  <div className="card card-custom h-100">
+                    <div className="card-body">
+                      <h5 className="card-title fw-bold mb-4">Cash Flow Waterfall (Year 1)</h5>
+                      <div style={{ height: '300px' }}>
+                        <Bar 
+                          data={waterfallData}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="col-lg-5">
-          <div className="card card-custom h-100">
-            <div className="card-body">
-              <h5 className="card-title fw-bold mb-4">Cash Flow Waterfall (Year 1)</h5>
-              <div style={{ height: '300px' }}>
-                <Bar 
-                  data={waterfallData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      <h5 className="text-uppercase text-muted small fw-bold tracking-wider mb-3">Investment Analysis</h5>
-      <div className="row g-3">
-        {[
-          { label: 'Land investment', val: 'PKR 9,000,000', cls: '' },
-          { label: 'Annual farm income', val: fmtPKR(calc.net), cls: calc.net >= 0 ? 'kpi-pos' : 'kpi-neg' },
-          { label: 'Land value (10yr)', val: fmtPKR(calc.land_val_10), cls: 'kpi-pos' },
-          { label: 'Total 10yr return', val: fmtPKR(calc.total_return_10), cls: calc.total_return_10 >= 0 ? 'kpi-pos' : 'kpi-neg' },
-          { label: 'Cash ROI (annual)', val: calc.simple_roi.toFixed(1) + '%', cls: calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn' },
-          { label: 'Estimated IRR (10yr)', val: calc.irr_approx.toFixed(1) + '%', cls: calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn' },
-        ].map((i, idx) => (
-          <div className="col-md-4 col-lg-2" key={idx}>
-            <div className="card card-custom h-100 p-3 bg-light border-0">
-              <p className="text-muted small mb-1">{i.label}</p>
-              <h5 className={`mb-0 ${i.cls}`}>{i.val}</h5>
+          {viewTab === 'Per-crop Breakdown' && (
+            <div className="row g-3 mb-5">
+              {[
+                { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price },
+                { name: 'Sesame', color: '#EF9F27', rev: calc.ses_rev, cost: currentParams.ses.cost, net: calc.ses_rev - currentParams.ses.cost, margin: calc.ses_margin, yield: currentParams.ses.yield + ' kg', price: currentParams.ses.price },
+                { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price }
+              ].map(cr => (
+                <div className="col-md-4" key={cr.name}>
+                  <div className="card card-custom h-100">
+                    <div className="card-body">
+                      <h5 className="d-flex align-items-center mb-4">
+                        <span className="me-2 rounded-circle" style={{width: 12, height: 12, background: cr.color}}></span>
+                        {cr.name}
+                      </h5>
+                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between border-bottom py-2 small"><span className="text-muted">Net</span><span className={`fw-bold ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
+                      <div className="d-flex justify-content-between py-2 small"><span className="text-muted">Margin</span><span className={`fw-bold ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
-      </div>
-      
+          )}
+
+          {viewTab === 'Investment Analysis' && (
+            <div className="row g-3">
+              {[
+                { label: 'Land investment', val: 'PKR 9,000,000', cls: '' },
+                { label: 'Annual farm income', val: fmtPKR(calc.net), cls: calc.net >= 0 ? 'kpi-pos' : 'kpi-neg' },
+                { label: 'Land value (10yr)', val: fmtPKR(calc.land_val_10), cls: 'kpi-pos' },
+                { label: 'Total 10yr return', val: fmtPKR(calc.total_return_10), cls: calc.total_return_10 >= 0 ? 'kpi-pos' : 'kpi-neg' },
+                { label: 'Cash ROI (annual)', val: calc.simple_roi.toFixed(1) + '%', cls: calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn' },
+                { label: 'Estimated IRR (10yr)', val: calc.irr_approx.toFixed(1) + '%', cls: calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn' },
+              ].map((i, idx) => (
+                <div className="col-md-4 col-lg-4" key={idx}>
+                  <div className="card card-custom h-100 p-4 bg-light border-0">
+                    <p className="text-muted small mb-2">{i.label}</p>
+                    <h4 className={`mb-0 fw-bold ${i.cls}`}>{i.val}</h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
       <div className="alert alert-secondary mt-5 small d-flex align-items-center">
         <Info className="me-3 flex-shrink-0" size={24} />
         <div>
