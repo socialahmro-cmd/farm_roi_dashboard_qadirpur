@@ -432,18 +432,57 @@ export default function Dashboard() {
                     { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price }
                   ].filter(cr => cr.name === cropTab).map(cr => (
                     <div className="col-md-8 col-lg-6" key={cr.name}>
-                      <div className="card card-custom p-4">
-                        <div className="card-body">
-                          <h4 className="d-flex align-items-center justify-content-center mb-5 fw-bold">
-                            <span className="me-3 rounded-circle shadow-sm" style={{width: 16, height: 16, background: cr.color}}></span>
-                            {cr.name} Breakdown
-                          </h4>
-                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
-                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
-                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
-                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
-                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Net Income</span><span className={`fw-bold fs-5 ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
-                          <div className="d-flex justify-content-between py-3"><span className="text-muted">Profit Margin</span><span className={`fw-bold fs-5 ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
+                      <div className="card card-custom overflow-hidden border-0 shadow-lg">
+                        <div className="card-body p-0">
+                          <div className="p-4 border-bottom text-center bg-white">
+                            <h4 className="d-flex align-items-center justify-content-center mb-4 fw-bold">
+                              <span className="me-3 rounded-circle shadow-sm" style={{width: 16, height: 16, background: cr.color}}></span>
+                              {cr.name} Breakdown
+                            </h4>
+                            <div className="row g-3 justify-content-center mt-2">
+                              <div className="col-6 border-end">
+                                <p className="text-muted mb-1 small text-uppercase fw-bold" style={{ letterSpacing: '0.05em' }}>Net Income</p>
+                                <h3 className={`fw-bold mb-0 ${cr.net >= 0 ? 'text-success' : 'text-danger'}`} style={{ fontSize: 'clamp(1.2rem, 4vw, 1.75rem)' }}>
+                                  PKR {fmt(cr.net)}
+                                </h3>
+                              </div>
+                              <div className="col-6">
+                                <p className="text-muted mb-1 small text-uppercase fw-bold" style={{ letterSpacing: '0.05em' }}>Profit Margin</p>
+                                <h3 className={`fw-bold mb-0 ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`} style={{ fontSize: 'clamp(1.2rem, 4vw, 1.75rem)' }}>
+                                  {cr.margin.toFixed(1)}%
+                                </h3>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4" style={{ backgroundColor: 'var(--color-bg)' }}>
+                            <div className="row g-3">
+                              <div className="col-6">
+                                <div className="p-3 bg-white rounded-3 shadow-sm border-0 h-100">
+                                  <p className="text-muted mb-1 small">Yield</p>
+                                  <h6 className="fw-bold mb-0">{cr.yield}</h6>
+                                </div>
+                              </div>
+                              <div className="col-6">
+                                <div className="p-3 bg-white rounded-3 shadow-sm border-0 h-100">
+                                  <p className="text-muted mb-1 small">Price</p>
+                                  <h6 className="fw-bold mb-0">PKR {cr.price.toLocaleString()}</h6>
+                                </div>
+                              </div>
+                              <div className="col-6">
+                                <div className="p-3 bg-white rounded-3 shadow-sm border-0 h-100">
+                                  <p className="text-muted mb-1 small">Revenue</p>
+                                  <h6 className="fw-bold mb-0">PKR {Math.round(cr.rev).toLocaleString()}</h6>
+                                </div>
+                              </div>
+                              <div className="col-6">
+                                <div className="p-3 bg-white rounded-3 shadow-sm border-0 h-100">
+                                  <p className="text-muted mb-1 small">Cost</p>
+                                  <h6 className="fw-bold mb-0">PKR {Math.round(cr.cost).toLocaleString()}</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
