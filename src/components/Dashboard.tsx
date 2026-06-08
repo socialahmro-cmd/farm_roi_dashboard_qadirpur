@@ -19,9 +19,7 @@ import { Info, Target, TrendingUp, DollarSign, Sprout, BarChart3, PieChart } fro
 
 const tabsConfig = [
   { id: 'Annual Summary', icon: BarChart3 },
-  { id: 'Rice', icon: Sprout },
-  { id: 'Sesame', icon: Sprout },
-  { id: 'Wheat', icon: Sprout },
+  { id: 'Per-crop Breakdown', icon: Sprout },
   { id: 'Investment Analysis', icon: PieChart }
 ];
 
@@ -79,6 +77,7 @@ const fmtPKR = (n: number) => `PKR ${fmt(n)}`;
 export default function Dashboard() {
   const [activeScenario, setActiveScenario] = useState<'base' | 'optimistic' | 'pessimistic' | 'custom'>('base');
   const [viewTab, setViewTab] = useState<string>('Annual Summary');
+  const [cropTab, setCropTab] = useState<string>('Rice');
   const [customParams, setCustomParams] = useState<Scenario>({ ...defaultScenarios.base });
 
   const currentParams = activeScenario === 'custom' ? customParams : defaultScenarios[activeScenario];
@@ -385,36 +384,58 @@ export default function Dashboard() {
             </div>
           )}
 
-          {['Rice', 'Sesame', 'Wheat'].includes(viewTab) && (() => {
-            const crData = [
-              { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price, season: currentParams.rice.season },
-              { name: 'Sesame', color: '#EF9F27', rev: calc.ses_rev, cost: currentParams.ses.cost, net: calc.ses_rev - currentParams.ses.cost, margin: calc.ses_margin, yield: currentParams.ses.yield + ' kg', price: currentParams.ses.price, season: currentParams.ses.season },
-              { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price, season: currentParams.wheat.season }
-            ];
-            const cr = crData.find(c => c.name === viewTab);
-            if (!cr) return null;
-            return (
-              <div className="row justify-content-center mb-5">
-                <div className="col-md-8 col-lg-6">
-                  <div className="card card-custom h-100 border-0 shadow-sm" style={{ borderTop: `6px solid ${cr.color}` }}>
-                    <div className="card-body p-4 p-md-5">
-                      <h4 className="d-flex align-items-center fw-bold mb-1">
-                        <span className="me-3 rounded-circle shadow-sm" style={{width: 16, height: 16, background: cr.color}}></span>
-                        {cr.name} Analysis
-                      </h4>
-                      <p className="text-muted mb-4 ms-4 ps-2">{cr.season}</p>
-                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Net Profit</span><span className={`fw-bold ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
-                      <div className="d-flex justify-content-between py-3"><span className="text-muted">Profit Margin</span><span className={`fw-bold ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
-                    </div>
-                  </div>
+          {viewTab === 'Per-crop Breakdown' && (
+            <div className="mb-5">
+              <div className="d-flex justify-content-center mb-4">
+                <div className="btn-group shadow-sm" role="group">
+                  {['Rice', 'Sesame', 'Wheat'].map(crop => (
+                    <button
+                      key={crop}
+                      type="button"
+                      className={`btn px-4 py-2 ${cropTab === crop ? 'btn-success fw-bold' : 'btn-light bg-white text-muted border'}`}
+                      onClick={() => setCropTab(crop)}
+                    >
+                      {crop}
+                    </button>
+                  ))}
                 </div>
               </div>
-            );
-          })()}
+              
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={cropTab}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="row justify-content-center"
+                >
+                  {[
+                    { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price },
+                    { name: 'Sesame', color: '#EF9F27', rev: calc.ses_rev, cost: currentParams.ses.cost, net: calc.ses_rev - currentParams.ses.cost, margin: calc.ses_margin, yield: currentParams.ses.yield + ' kg', price: currentParams.ses.price },
+                    { name: 'Wheat', color: '#378ADD', rev: calc.wht_rev, cost: currentParams.wheat.cost, net: calc.wht_rev - currentParams.wheat.cost, margin: calc.wht_margin, yield: currentParams.wheat.yield + ' maund', price: currentParams.wheat.price }
+                  ].filter(cr => cr.name === cropTab).map(cr => (
+                    <div className="col-md-8 col-lg-6" key={cr.name}>
+                      <div className="card card-custom p-4">
+                        <div className="card-body">
+                          <h4 className="d-flex align-items-center justify-content-center mb-5 fw-bold">
+                            <span className="me-3 rounded-circle shadow-sm" style={{width: 16, height: 16, background: cr.color}}></span>
+                            {cr.name} Breakdown
+                          </h4>
+                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Yield</span><span className="fw-bold">{cr.yield}</span></div>
+                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Price</span><span className="fw-bold">PKR {cr.price.toLocaleString()}</span></div>
+                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Revenue</span><span className="fw-bold">PKR {Math.round(cr.rev).toLocaleString()}</span></div>
+                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Cost</span><span className="fw-bold">PKR {Math.round(cr.cost).toLocaleString()}</span></div>
+                          <div className="d-flex justify-content-between border-bottom py-3"><span className="text-muted">Net Income</span><span className={`fw-bold fs-5 ${cr.net >= 0 ? 'text-success' : 'text-danger'}`}>PKR {Math.round(cr.net).toLocaleString()}</span></div>
+                          <div className="d-flex justify-content-between py-3"><span className="text-muted">Profit Margin</span><span className={`fw-bold fs-5 ${cr.margin >= 30 ? 'text-success' : cr.margin >= 10 ? 'text-warning' : 'text-danger'}`}>{cr.margin.toFixed(1)}%</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
 
           {viewTab === 'Investment Analysis' && (
             <div className="row g-3">
