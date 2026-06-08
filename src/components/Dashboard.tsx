@@ -78,6 +78,7 @@ export default function Dashboard() {
   const [activeScenario, setActiveScenario] = useState<'base' | 'optimistic' | 'pessimistic' | 'custom'>('base');
   const [viewTab, setViewTab] = useState<string>('Annual Summary');
   const [cropTab, setCropTab] = useState<string>('Rice');
+  const [sliderTab, setSliderTab] = useState<string>('Rice');
   const [customParams, setCustomParams] = useState<Scenario>({ ...defaultScenarios.base });
 
   const currentParams = activeScenario === 'custom' ? customParams : defaultScenarios[activeScenario];
@@ -211,56 +212,92 @@ export default function Dashboard() {
             className="card card-custom mb-4 overflow-hidden"
           >
             <div className="card-body bg-light">
-              <h6 className="fw-bold mb-3"><Target className="me-2" size={18}/> Adjust Assumptions</h6>
-              <div className="row g-3">
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Rice Yield (maund) <strong>{customParams.rice.yield}</strong>
-                  </label>
-                  <input type="range" className="form-range" min="20" max="55" value={customParams.rice.yield} onChange={e => updateCustom('rice', 'yield', +e.target.value)} />
+              <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                <h6 className="fw-bold mb-3 mb-md-0"><Target className="me-2" size={18}/> Adjust Assumptions</h6>
+                
+                {/* Category Sub-tabs */}
+                <div className="btn-group shadow-sm" role="group">
+                  {['Rice', 'Sesame', 'Wheat', 'General'].map(tab => (
+                    <button
+                      key={tab}
+                      type="button"
+                      className={`btn btn-sm px-3 py-1 ${sliderTab === tab ? 'btn-success fw-bold' : 'btn-light bg-white text-muted border'}`}
+                      onClick={() => setSliderTab(tab)}
+                    >
+                      {tab}
+                    </button>
+                  ))}
                 </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Rice Price (PKR) <strong>{customParams.rice.price}</strong>
-                  </label>
-                  <input type="range" className="form-range" min="2500" max="6500" step="100" value={customParams.rice.price} onChange={e => updateCustom('rice', 'price', +e.target.value)} />
-                </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Sesame Yield (kg) <strong>{customParams.ses.yield}</strong>
-                  </label>
-                  <input type="range" className="form-range" min="150" max="550" step="10" value={customParams.ses.yield} onChange={e => updateCustom('ses', 'yield', +e.target.value)} />
-                </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Sesame Price (PKR) <strong>{customParams.ses.price}</strong>
-                  </label>
-                  <input type="range" className="form-range" min="700" max="1800" step="50" value={customParams.ses.price} onChange={e => updateCustom('ses', 'price', +e.target.value)} />
-                </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Wheat Yield (maund) <strong>{customParams.wheat.yield}</strong>
-                  </label>
-                  <input type="range" className="form-range" min="18" max="50" value={customParams.wheat.yield} onChange={e => updateCustom('wheat', 'yield', +e.target.value)} />
-                </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Wheat Price (PKR) <strong>{customParams.wheat.price}</strong>
-                  </label>
-                  <input type="range" className="form-range" min="2000" max="5000" step="100" value={customParams.wheat.price} onChange={e => updateCustom('wheat', 'price', +e.target.value)} />
-                </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Inflation (%) <strong>{customParams.inflation}%</strong>
-                  </label>
-                  <input type="range" className="form-range" min="0" max="25" value={customParams.inflation} onChange={e => updateCustom('inflation', null, +e.target.value)} />
-                </div>
-                <div className="col-md-3">
-                  <label className="form-label small d-flex justify-content-between">
-                    Land Apprec. (%) <strong>{customParams.land_app}%</strong>
-                  </label>
-                  <input type="range" className="form-range" min="0" max="20" value={customParams.land_app} onChange={e => updateCustom('land_app', null, +e.target.value)} />
-                </div>
+              </div>
+
+              <div className="row g-4">
+                {sliderTab === 'Rice' && (
+                  <>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Rice Yield (maund) <strong>{customParams.rice.yield}</strong>
+                      </label>
+                      <input type="range" className="form-range" min="20" max="55" value={customParams.rice.yield} onChange={e => updateCustom('rice', 'yield', +e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Rice Price (PKR) <strong>{customParams.rice.price}</strong>
+                      </label>
+                      <input type="range" className="form-range" min="2500" max="6500" step="100" value={customParams.rice.price} onChange={e => updateCustom('rice', 'price', +e.target.value)} />
+                    </div>
+                  </>
+                )}
+
+                {sliderTab === 'Sesame' && (
+                  <>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Sesame Yield (kg) <strong>{customParams.ses.yield}</strong>
+                      </label>
+                      <input type="range" className="form-range" min="150" max="550" step="10" value={customParams.ses.yield} onChange={e => updateCustom('ses', 'yield', +e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Sesame Price (PKR) <strong>{customParams.ses.price}</strong>
+                      </label>
+                      <input type="range" className="form-range" min="700" max="1800" step="50" value={customParams.ses.price} onChange={e => updateCustom('ses', 'price', +e.target.value)} />
+                    </div>
+                  </>
+                )}
+
+                {sliderTab === 'Wheat' && (
+                  <>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Wheat Yield (maund) <strong>{customParams.wheat.yield}</strong>
+                      </label>
+                      <input type="range" className="form-range" min="18" max="50" value={customParams.wheat.yield} onChange={e => updateCustom('wheat', 'yield', +e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Wheat Price (PKR) <strong>{customParams.wheat.price}</strong>
+                      </label>
+                      <input type="range" className="form-range" min="2000" max="5000" step="100" value={customParams.wheat.price} onChange={e => updateCustom('wheat', 'price', +e.target.value)} />
+                    </div>
+                  </>
+                )}
+
+                {sliderTab === 'General' && (
+                  <>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Inflation (%) <strong>{customParams.inflation}%</strong>
+                      </label>
+                      <input type="range" className="form-range" min="0" max="25" value={customParams.inflation} onChange={e => updateCustom('inflation', null, +e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small d-flex justify-content-between">
+                        Land Apprec. (%) <strong>{customParams.land_app}%</strong>
+                      </label>
+                      <input type="range" className="form-range" min="0" max="20" value={customParams.land_app} onChange={e => updateCustom('land_app', null, +e.target.value)} />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
