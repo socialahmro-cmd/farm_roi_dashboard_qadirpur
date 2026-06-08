@@ -47,6 +47,18 @@ h1, h2, h3, h4, h5, h6 {
   padding: 40px;
   position: relative;
   z-index: 10;
+  color: var(--color-text); /* Fix for text inheriting white from hero */
+}
+
+/* Mobile responsive scrollable tabs */
+.mobile-tabs {
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.mobile-tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 @media (max-width: 768px) {

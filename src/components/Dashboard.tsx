@@ -15,7 +15,13 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
-import { Info, Target, TrendingUp, DollarSign } from 'lucide-react';
+import { Info, Target, TrendingUp, DollarSign, Sprout, BarChart3, PieChart } from 'lucide-react';
+
+const tabsConfig = [
+  { id: 'Annual Summary', icon: BarChart3 },
+  { id: 'Per-crop Breakdown', icon: Sprout },
+  { id: 'Investment Analysis', icon: PieChart }
+];
 
 ChartJS.register(
   CategoryScale,
@@ -261,18 +267,29 @@ export default function Dashboard() {
       </AnimatePresence>
 
       <div className="mb-4 mt-5 border-bottom">
-        <ul className="nav nav-tabs border-0" style={{ gap: '10px' }}>
-          {['Annual Summary', 'Per-crop Breakdown', 'Investment Analysis'].map((tab) => (
-            <li className="nav-item" key={tab}>
+        <ul className="nav nav-tabs border-0 mobile-tabs flex-nowrap" style={{ gap: '15px' }}>
+          {tabsConfig.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = viewTab === tab.id;
+            return (
+            <li className="nav-item" key={tab.id} style={{ whiteSpace: 'nowrap' }}>
               <button
-                className={`nav-link border-0 ${viewTab === tab ? 'active text-success fw-bold border-bottom border-success border-3' : 'text-muted'}`}
-                style={{ backgroundColor: 'transparent', borderBottom: viewTab === tab ? '3px solid #1D9E75 !important' : 'none', borderRadius: 0, paddingBottom: '12px' }}
-                onClick={() => setViewTab(tab)}
+                className={`nav-link border-0 d-flex align-items-center ${isActive ? 'active text-success fw-bold border-bottom border-success border-3' : 'text-muted'}`}
+                style={{ backgroundColor: 'transparent', borderBottom: isActive ? '3px solid #1D9E75 !important' : 'none', borderRadius: 0, paddingBottom: '12px' }}
+                onClick={() => setViewTab(tab.id)}
               >
-                {tab}
+                <motion.div
+                  animate={{ scale: isActive ? 1.2 : 1, rotate: isActive ? [0, -10, 10, 0] : 0 }}
+                  transition={{ duration: 0.4 }}
+                  className={`me-2 ${isActive ? 'text-success' : 'text-muted'}`}
+                >
+                  <Icon size={18} />
+                </motion.div>
+                {tab.id}
               </button>
             </li>
-          ))}
+            );
+          })}
         </ul>
       </div>
 
