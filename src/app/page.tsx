@@ -45,8 +45,9 @@ export default function Home() {
       </section>
 
       {/* Main Dashboard */}
-      <section className="container mb-5 pb-5">
+      <section className="container mb-5 pb-5 position-relative">
         <motion.div
+          className="glass-panel"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}

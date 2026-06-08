@@ -174,13 +174,13 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-wrapper">
-      <div className="mb-4">
-        <h2 className="h4 fw-bold mb-1">Farm ROI Model — Qadirpur Rawan, Multan</h2>
-        <p className="text-muted mb-0">1 acre · Land cost: PKR 9,000,000 · 3 crops/year (Rice → Sesame → Wheat)</p>
+      <div className="mb-5 border-bottom pb-4">
+        <h2 className="h3 fw-bold mb-2">Farm ROI Model — Qadirpur Rawan, Multan</h2>
+        <p className="text-muted mb-0" style={{ fontSize: '15px' }}>1 acre · Land cost: PKR 9,000,000 · 3 crops/year (Rice → Sesame → Wheat)</p>
       </div>
 
       <div className="mb-4">
-        <h5 className="text-uppercase text-muted small fw-bold tracking-wider mb-3">Scenario Selector</h5>
+        <h6 className="text-uppercase text-muted fw-bold mb-3" style={{ fontSize: '12px', letterSpacing: '0.05em' }}>Scenario Selector</h6>
         <div className="d-flex flex-wrap gap-2">
           {['base', 'optimistic', 'pessimistic', 'custom'].map(scenario => (
             <button
@@ -259,47 +259,47 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      <h5 className="text-uppercase text-muted small fw-bold tracking-wider mb-3">Annual Summary</h5>
+      <h6 className="text-uppercase text-muted fw-bold mt-5 mb-3" style={{ fontSize: '12px', letterSpacing: '0.05em' }}>Annual Summary</h6>
       <div className="row g-3 mb-5">
         <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-3">
-            <p className="text-muted small mb-1">Gross revenue</p>
-            <h4 className="mb-0">{fmtPKR(calc.total_rev)}</h4>
+          <div className="card card-custom h-100 p-4">
+            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Gross revenue</p>
+            <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_rev)}</h4>
           </div>
         </div>
         <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-3">
-            <p className="text-muted small mb-1">Total costs</p>
-            <h4 className="mb-0">{fmtPKR(calc.total_cost)}</h4>
+          <div className="card card-custom h-100 p-4">
+            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Total costs</p>
+            <h4 className="mb-0 fw-bold">{fmtPKR(calc.total_cost)}</h4>
           </div>
         </div>
         <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-3">
-            <p className="text-muted small mb-1">Net income</p>
-            <h4 className={`mb-0 ${calc.net >= 0 ? 'kpi-pos' : 'kpi-neg'}`}>{fmtPKR(calc.net)}</h4>
+          <div className="card card-custom h-100 p-4">
+            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Net income</p>
+            <h4 className={`mb-0 fw-bold ${calc.net >= 0 ? 'kpi-pos' : 'kpi-neg'}`}>{fmtPKR(calc.net)}</h4>
           </div>
         </div>
         <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-3">
-            <p className="text-muted small mb-1">Cash ROI</p>
-            <h4 className={`mb-0 ${calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.simple_roi.toFixed(1)}%</h4>
+          <div className="card card-custom h-100 p-4">
+            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Cash ROI</p>
+            <h4 className={`mb-0 fw-bold ${calc.simple_roi >= 5 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.simple_roi.toFixed(1)}%</h4>
           </div>
         </div>
         <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-3">
-            <p className="text-muted small mb-1">Payback</p>
-            <h4 className={`mb-0 ${calc.payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.payback_yrs > 99 ? '∞' : calc.payback_yrs.toFixed(1) + ' yrs'}</h4>
+          <div className="card card-custom h-100 p-4">
+            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Payback</p>
+            <h4 className={`mb-0 fw-bold ${calc.payback_yrs <= 20 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.payback_yrs > 99 ? '∞' : calc.payback_yrs.toFixed(1) + ' yrs'}</h4>
           </div>
         </div>
         <div className="col-md-4 col-lg-2">
-          <div className="card card-custom h-100 p-3">
-            <p className="text-muted small mb-1">Est. IRR (10y)</p>
-            <h4 className={`mb-0 ${calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.irr_approx.toFixed(1)}%</h4>
+          <div className="card card-custom h-100 p-4">
+            <p className="text-muted mb-2" style={{ fontSize: '13px' }}>Est. IRR (10y)</p>
+            <h4 className={`mb-0 fw-bold ${calc.irr_approx >= 8 ? 'kpi-pos' : 'kpi-warn'}`}>{calc.irr_approx.toFixed(1)}%</h4>
           </div>
         </div>
       </div>
 
-      <h5 className="text-uppercase text-muted small fw-bold tracking-wider mb-3">Per-crop Breakdown</h5>
+      <h6 className="text-uppercase text-muted fw-bold mt-5 mb-3" style={{ fontSize: '12px', letterSpacing: '0.05em' }}>Per-crop Breakdown</h6>
       <div className="row g-3 mb-5">
         {[
           { name: 'Rice', color: '#1D9E75', rev: calc.rice_rev, cost: currentParams.rice.cost, net: calc.rice_rev - currentParams.rice.cost, margin: calc.rice_margin, yield: currentParams.rice.yield + ' maund', price: currentParams.rice.price },
